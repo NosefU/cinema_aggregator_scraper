@@ -1,0 +1,2 @@
+class BaseScraperException(BaseException):
+    pass
