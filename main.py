@@ -1,3 +1,4 @@
+import datetime as dt
 from pprint import pprint
 
 from engine import ScrapingEngine
@@ -17,8 +18,8 @@ THEATERS = [
 
 if __name__ == '__main__':
     fed_movies_db = fed_movies_repo_factory()
-    date_stamp = '1649624400'  # timestamp: понедельник, 11 апреля 2022 г., 0:00:00 GMT+03:00
+    date = dt.date.today() + dt.timedelta(hours=24)
     engine = ScrapingEngine(theaters=THEATERS, fed_movies_repo=fed_movies_db)
-    engine.run(date_stamp)
+    engine.run(date)
 
     pprint(engine.sessions)

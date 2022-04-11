@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import datetime as dt
 from typing import Optional, Type, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -21,7 +22,7 @@ class ScrapedMovie:
 class ScrapedSession:
     movie: ScrapedMovie
     hall: str
-    time: str
+    datetime: dt.datetime
     link: str
 
 
@@ -30,7 +31,7 @@ class Session:
     theater_id: int  # Theater.id
     movie: FedMovie  # for future: FedMovie.id
     hall: str
-    time: str
+    datetime: dt.datetime
     link: Optional[str]
 
 
@@ -40,8 +41,9 @@ class Theater:
     name: str
     city: str
     address: str
-    timezone: str
+    timezone: str  # TODO нужна ли? Если да, то как лучше реализовать?
     scraper: Type[AbstractScraper]
+    scraper_args: Optional[dict] = None
 
     def __hash__(self):
         return hash('Theater ' + str(self.id))

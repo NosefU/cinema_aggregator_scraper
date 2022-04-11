@@ -1,3 +1,4 @@
+import datetime as dt
 import glob
 from pathlib import Path
 from typing import List, Optional
@@ -50,11 +51,11 @@ class ScrapingEngine:
             f.write(img_data)
         return str(img_path)
 
-    def run(self, date_stamp: str):
+    def run(self, date: dt.date):
         raw_sessions = {}
         for theater in self.theaters:
             scraper = theater.scraper()
-            scraper.run(date_stamp)
+            scraper.run(date)
             raw_sessions[theater] = scraper.raw_sessions
 
         for theater, theater_raw_sessions in raw_sessions.items():
@@ -75,7 +76,7 @@ class ScrapingEngine:
                     theater_id=theater.id,
                     movie=movie,
                     hall=raw_session.hall,
-                    time=raw_session.time,
+                    datetime=raw_session.datetime,
                     link=raw_session.link
                 )
                 self.sessions.append(session)

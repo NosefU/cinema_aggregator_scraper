@@ -1,3 +1,5 @@
+import datetime as dt
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -9,22 +11,25 @@ from settings import HEADERS
 
 class RusichScraper(AbstractScraper):
     THEATER_BASE_URL = 'https://kinorusich.ru'
+    SCHEDULE_URL = THEATER_BASE_URL + '/h/schedule/'
 
-    def run(self, date_stamp: str):
-        schedule_url = self.THEATER_BASE_URL + '/h/schedule/'
-        payload = {'d': date_stamp, }
-        response = requests.get(schedule_url, params=payload, headers=HEADERS)
+    def run(self, date: dt.date):
+        # получаем таймстамп, ибо так хочет сайт
+        datetime = dt.datetime.combine(date, dt.datetime.min.time())
+        timestamp = int(datetime.timestamp())
 
+        payload = {'d': timestamp, }
+        response = requests.get(self.SCHEDULE_URL, params=payload, headers=HEADERS)
         if response.status_code != 200:
             raise BaseScraperException(f'{self.__class__.__name__}: Response status != 200', response)
+
         html_doc = BeautifulSoup(response.text, features='html.parser')
         movie_cards = html_doc.find_all('article', {'class': 'movie-info-item'})
-
         for card in movie_cards:
             name_tag = card.findNext('a', {'class': 'movie-info-name'})
             name = name_tag.text
 
-            link = schedule_url + name_tag.attrs['href']
+            link = self.SCHEDULE_URL + name_tag.attrs['href']
 
             year_tag = card.findNext('span', text='Год', attrs={'class': 'movie-info-label'})
             year_str = year_tag.parent.contents[1]
@@ -48,4 +53,8 @@ class RusichScraper(AbstractScraper):
                     session_time = hall_session.contents[0].strip()
                     if session_time == 'Все сеансы на сегодня завершены':
                         break
-                    self.raw_sessions.append(ScrapedSession(movie=movie, hall=hall_name, time=session_time, link=link))
+                    session_time = dt.datetime.strptime(session_time, '%H:%M').time()
+                    session_datetime = dt.datetime.combine(date, session_time)
+                    self.raw_sessions.append(
+                        ScrapedSession(movie=movie, hall=hall_name, datetime=session_datetime, link=link)
+                    )
