@@ -67,10 +67,10 @@ class ScrapingEngine:
                                               raw_session.movie)
 
                 # если постера в базе нет, то скачиваем
-                poster_path = self._get_poster(movie.id)
-                if not poster_path:
+                if not movie.posterPath:
                     poster_path = self._save_poster(movie.id, raw_session.movie.poster_link)
-                    # TODO добавить путь до постера в таблицу БД
+                    movie.posterPath = poster_path
+                    self.fed_movies_repo.add_movies([movie, ])
 
                 session = Session(
                     theater_id=theater.id,

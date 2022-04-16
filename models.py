@@ -59,6 +59,7 @@ class FedMovie:
     cardNumber: str
     filmname: str
     foreignName: Optional[str] = ''
+    posterPath: Optional[str] = ''
     studio: Optional[str] = ''
     crYearOfProduction: Optional[str] = ''
     director: Optional[str] = ''

@@ -31,7 +31,8 @@ class PostgresFedMoviesRepo(AbstractFedMoviesRepo):
                     "ageCategory" VARCHAR,
                     "annotation" TEXT,
                     "countryOfProduction" VARCHAR,
-                    "ageLimit" INTEGER
+                    "ageLimit" INTEGER,
+                    "posterPath" VARCHAR DEFAULT ''
                 );
             """,
     }
@@ -88,7 +89,8 @@ class PostgresFedMoviesRepo(AbstractFedMoviesRepo):
                 "ageCategory", 
                 "annotation", 
                 "countryOfProduction", 
-                "ageLimit"
+                "ageLimit",
+                "posterPath"
                 )
                 VALUES
                 (
@@ -106,7 +108,8 @@ class PostgresFedMoviesRepo(AbstractFedMoviesRepo):
                 %(ageCategory)s, 
                 %(annotation)s, 
                 %(countryOfProduction)s, 
-                %(ageLimit)s
+                %(ageLimit)s, 
+                %(posterPath)s
                 );
                 """,
                 [asdict(movie) for movie in movies]
