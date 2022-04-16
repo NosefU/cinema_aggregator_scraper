@@ -145,6 +145,20 @@ class PostgresFedMoviesRepo(AbstractFedMoviesRepo):
                 return None
             return self.get_movie_by_id(movies[0][0])
 
+    @property
+    def max_id(self) -> int:
+        with psycopg2.connect(dbname=self.db_name, user=self.db_user,
+                              password=self.db_password, host=self.db_host) as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                SELECT MAX(id)
+                FROM fedMovie
+                """
+            )
+            result = cursor.fetchone()
+            return result[0]
+
 
 # if __name__ == '__main__':
 #     import csv

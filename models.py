@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 import datetime as dt
 from typing import Optional, Type, TYPE_CHECKING
 
@@ -57,19 +57,38 @@ class FedMovie:
     """
     id: int
     cardNumber: str
-    foreignName: Optional[str]
     filmname: str
-    studio: Optional[str]
-    crYearOfProduction: Optional[str]
-    director: Optional[str]
-    scriptAuthor: Optional[str]
-    composer: Optional[str]
-    durationMinute: Optional[int]
-    durationHour: Optional[int]
-    ageCategory: Optional[str]
-    annotation: Optional[str]
-    countryOfProduction: Optional[str]
-    ageLimit: Optional[int]
+    foreignName: Optional[str] = ''
+    studio: Optional[str] = ''
+    crYearOfProduction: Optional[str] = ''
+    director: Optional[str] = ''
+    scriptAuthor: Optional[str] = ''
+    composer: Optional[str] = ''
+    durationMinute: Optional[int] = None
+    durationHour: Optional[int] = None
+    ageCategory: Optional[str] = ''
+    annotation: Optional[str] = ''
+    countryOfProduction: Optional[str] = ''
+    ageLimit: Optional[int] = 0
+
+    def __post_init__(self):
+        # stripping all strings
+        for field in fields(self):
+            value = getattr(self, field.name)
+            if isinstance(value, str):
+                setattr(self, field.name, value.strip())
+
+        # converting types for int fields
+        int_fields = ['id', 'durationMinute', 'durationHour', 'ageLimit']
+        for field_name in int_fields:
+            value = getattr(self, field_name)
+            if isinstance(value, str):
+                value = int(value) if value != '' else None
+                setattr(self, field_name, value)
+
+
+
+
 
     @classmethod
     def from_fed_csv(cls, row: dict) -> FedMovie:
