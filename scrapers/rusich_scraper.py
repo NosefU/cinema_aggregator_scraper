@@ -10,6 +10,7 @@ from settings import HEADERS
 
 
 class RusichScraper(AbstractScraper):
+    NAME = 'rusich31'
     THEATER_BASE_URL = 'https://kinorusich.ru'
     SCHEDULE_URL = THEATER_BASE_URL + '/h/schedule/'
 

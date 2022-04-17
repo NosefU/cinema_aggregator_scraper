@@ -16,24 +16,31 @@ class PostgresFedMoviesRepo(AbstractFedMoviesRepo):
 
     tables = {
         'fedMovie': """
-                CREATE TABLE fedMovie (
-                    "id" INTEGER PRIMARY KEY,
-                    "cardNumber" VARCHAR(20) NOT NULL,
-                    "foreignName" VARCHAR,
-                    "filmname" VARCHAR NOT NULL,
-                    "studio" VARCHAR,
-                    "crYearOfProduction" VARCHAR,
-                    "director" VARCHAR,
-                    "scriptAuthor" VARCHAR,
-                    "composer" VARCHAR,
-                    "durationMinute" INTEGER,
-                    "durationHour" INTEGER,
-                    "ageCategory" VARCHAR,
-                    "annotation" TEXT,
-                    "countryOfProduction" VARCHAR,
-                    "ageLimit" INTEGER,
-                    "posterPath" VARCHAR DEFAULT ''
+                create table fedmovie
+                (
+                    id                    integer     not null     primary key,
+                    "cardNumber"          varchar(20) not null,
+                    "foreignName"         varchar,
+                    filmname              varchar     not null,
+                    studio                varchar,
+                    "crYearOfProduction"  varchar,
+                    director              varchar,
+                    "scriptAuthor"        varchar,
+                    composer              varchar,
+                    "durationMinute"      integer,
+                    "durationHour"        integer,
+                    "ageCategory"         varchar,
+                    annotation            text,
+                    "countryOfProduction" varchar,
+                    "ageLimit"            integer,
+                    "posterPath"          varchar default ''::character varying
                 );
+                
+                create index fedmovie_cryearofproduction_index
+                    on fedmovie ("crYearOfProduction");
+                
+                create index fedmovie_filmname_index
+                    on fedmovie (filmname);
             """,
     }
 

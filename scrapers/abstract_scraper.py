@@ -9,6 +9,9 @@ class AbstractScraper(ABC):
     """
     Абстрактный класс скрапера
     """
+
+    NAME = ''
+
     def __init__(self):
         self.raw_sessions: List[ScrapedSession] = []
 

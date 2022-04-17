@@ -7,6 +7,7 @@ import requests
 
 from models import Theater, Session
 from repos.abstract_fed_movies_repo import AbstractFedMoviesRepo
+from repos.postgres_sessions_repo import PostgresSessionsRepo
 from settings import POSTERS_PATH, HEADERS
 
 
@@ -15,10 +16,11 @@ class BaseEngineException(BaseException):
 
 
 class ScrapingEngine:
-    def __init__(self, theaters: List[Theater], fed_movies_repo: AbstractFedMoviesRepo):
+    def __init__(self, theaters: List[Theater],
+                 fed_movies_repo: AbstractFedMoviesRepo, sessions_repo: PostgresSessionsRepo):
         self.theaters = theaters
         self.fed_movies_repo = fed_movies_repo
-        self.sessions = []
+        self.sessions_repo = sessions_repo
 
     @staticmethod
     def _get_poster(idx: int) -> Optional[str]:
@@ -56,9 +58,10 @@ class ScrapingEngine:
         for theater in self.theaters:
             scraper = theater.scraper()
             scraper.run(date)
-            raw_sessions[theater] = scraper.raw_sessions
+            raw_sessions[theater.id] = scraper.raw_sessions
 
-        for theater, theater_raw_sessions in raw_sessions.items():
+        sessions = []
+        for theater_id, theater_raw_sessions in raw_sessions.items():
             for raw_session in theater_raw_sessions:
                 movie = self.fed_movies_repo.search_movie(title=raw_session.movie.filmname,
                                                           year=raw_session.movie.year)
@@ -73,10 +76,12 @@ class ScrapingEngine:
                     self.fed_movies_repo.add_movies([movie, ])
 
                 session = Session(
-                    theater_id=theater.id,
-                    movie=movie,
+                    theater_id=theater_id,
+                    movie_id=movie.id,
                     hall=raw_session.hall,
                     datetime=raw_session.datetime,
                     link=raw_session.link
                 )
-                self.sessions.append(session)
+                sessions.append(session)
+
+        self.sessions_repo.add_sessions(sessions)

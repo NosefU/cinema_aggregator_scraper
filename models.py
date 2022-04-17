@@ -29,7 +29,7 @@ class ScrapedSession:
 @dataclass
 class Session:
     theater_id: int  # Theater.id
-    movie: FedMovie  # for future: FedMovie.id
+    movie_id: int  # FedMovie.id
     hall: str
     datetime: dt.datetime
     link: Optional[str]
@@ -37,13 +37,12 @@ class Session:
 
 @dataclass
 class Theater:
-    id: int
+    id: Optional[int]
     name: str
     city: str
     address: str
-    timezone: str  # TODO нужна ли? Если да, то как лучше реализовать?
-    scraper: Type[AbstractScraper]
-    scraper_args: Optional[dict] = None
+    scraper: str
+    scraper_kwargs: Optional[dict] = None
 
     def __hash__(self):
         return hash('Theater ' + str(self.id))
