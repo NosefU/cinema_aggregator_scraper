@@ -1,44 +1,60 @@
 import re
-from abc import ABC, abstractmethod
-from typing import Optional, List, Tuple, Dict
+from typing import Optional, List, Tuple
 
-from models import FedMovie
+from sqlalchemy import func
+
+from db.models import Fedmovie, Session
 
 
-class AbstractFedMoviesRepo(ABC):
+class FedMoviesRepo:
     """
-    Абстрактный репозиторий фильмов
-    с данными из Реестра прокатных удостоверений фильмов Минкульта РФ
+    Репозиторий фильмов с данными из Реестра прокатных удостоверений фильмов Минкульта РФ
     """
-    @abstractmethod
-    def __init__(self, config: dict): pass
+    @property
+    def max_id(self) -> int:
+        """
+        Возвращает последний id в таблице с фильмами
 
-    @abstractmethod
-    def init_repo(self):
-        """ Инициализация репозитория """
-        pass
+        :return: максимальный id фильма
+        """
+        with Session() as session:
+            result = session.query(func.max(Fedmovie.id)).one()
+            return result[0]
 
-    @abstractmethod
-    def add_movies(self, movies: list[FedMovie]):
+    @staticmethod
+    def add_movies(movies: list[Fedmovie]):
         """
         Добавление фильмов в репозиторий
 
         :param movies: список фильмов для добавления
         """
-        pass
+        if not all([isinstance(movie, Fedmovie) for movie in movies]):
+            raise TypeError('В списке должны быть только объекты типа Fedmovie')
 
-    @abstractmethod
-    def get_movie_by_id(self, idx: int) -> Optional[FedMovie]:
+        with Session() as session:
+            new_movies = {movie.id: movie for movie in movies}
+
+            # Обновляем записи, которые уже есть в БД
+            for movie in session.query(Fedmovie).filter(Fedmovie.id.in_(new_movies.keys())).all():
+                session.merge(new_movies.pop(movie.id))
+            # добавляем все остальные
+            session.bulk_save_objects(new_movies.values())
+
+            session.commit()
+
+    @staticmethod
+    def get_movie_by_id(idx: int) -> Optional[Fedmovie]:
         """
         Поиск фильма по идентификатору записи реестра (id фильма в реестре Минкульта)
 
         :param idx: Идентификатор записи реестра (id фильма в реестре Минкульта)
         :return: Найденный фильм, либо None
         """
-        pass
+        with Session() as session:
+            movie = session.get(Fedmovie, idx)
+        return movie
 
-    @abstractmethod
-    def search_movie(self, title: str, year: Optional[int]) -> Optional[FedMovie]:
+    def search_movie(self, title: str, year: Optional[int] = None) -> Optional[Fedmovie]:
         """
         Поиск фильма в репозитории по названию и году выхода
 
@@ -46,7 +62,20 @@ class AbstractFedMoviesRepo(ABC):
         :param year: Год выхода. Поиск осуществляется в промежутке ± 1 год от переданного
         :return: Найденный фильм, либо None
         """
-        pass
+        with Session() as session:
+            if year:
+                year = int(year)
+                result = session.query(Fedmovie.id, Fedmovie.filmname). \
+                    filter(Fedmovie.crYearOfProduction.between(str(year - 1), str(year + 1))).all()
+            else:
+                result = session.query(Fedmovie.id, Fedmovie.filmname).all()
+
+        movies = self._find_title_matches(title, result)
+        if movies is None:
+            return None
+        with Session() as session:
+            movie = session.get(Fedmovie, movies[0][0])
+        return movie
 
     @staticmethod
     def _normalize_title(title: str) -> str:
@@ -54,6 +83,7 @@ class AbstractFedMoviesRepo(ABC):
         Нормализует название фильма для дальнейшего поиска по репозиторию
 
         :param title: Название фильма
+
         :return: Нормализованное название фильма
         """
         title = re.sub(r'(\W+)', ' ', title)

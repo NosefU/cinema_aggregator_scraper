@@ -2,7 +2,7 @@ from dataclasses import asdict
 
 import psycopg2
 
-from models import Session
+from scrapers.models import Session
 
 
 class PostgresSessionsRepo:

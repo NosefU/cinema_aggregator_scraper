@@ -1,4 +1,4 @@
-from models import Theater
+from db.models import Theater
 from scrapers.rusich_scraper import RusichScraper
 
 SCRAPERS = {
@@ -7,5 +7,5 @@ SCRAPERS = {
 
 
 def scraper_factory(theater: Theater):
-    theater.scraper = SCRAPERS.get(theater.scraper)
-    return theater
+    scraper = SCRAPERS.get(theater.scraper)
+    return scraper()

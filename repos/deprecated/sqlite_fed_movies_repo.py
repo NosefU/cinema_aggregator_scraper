@@ -2,7 +2,7 @@ import sqlite3
 from dataclasses import asdict
 from typing import Optional
 
-from models import FedMovie
+from scrapers.models import FedMovie
 from repos.abstract_fed_movies_repo import AbstractFedMoviesRepo
 
 

@@ -5,9 +5,10 @@ from typing import List, Optional
 
 import requests
 
-from models import Theater, Session
-from repos.abstract_fed_movies_repo import AbstractFedMoviesRepo
-from repos.postgres_sessions_repo import PostgresSessionsRepo
+from db.models import Theater, MovieSession
+from repos.fed_movies_repo import FedMoviesRepo
+from repos.movie_sessions_repo import MovieSessionsRepo
+from scrapers import scraper_factory
 from settings import POSTERS_PATH, HEADERS
 
 
@@ -16,8 +17,16 @@ class BaseEngineException(BaseException):
 
 
 class ScrapingEngine:
+    """
+    Движок, управляющий работой скраперов и сохраняющий данные, которые поступают от скраперов
+    """
     def __init__(self, theaters: List[Theater],
-                 fed_movies_repo: AbstractFedMoviesRepo, sessions_repo: PostgresSessionsRepo):
+                 fed_movies_repo: FedMoviesRepo, sessions_repo: MovieSessionsRepo):
+        """
+        :param theaters: список кинотеатров
+        :param fed_movies_repo: репозиторий фильмов
+        :param sessions_repo: репозиторий сеансов
+        """
         self.theaters = theaters
         self.fed_movies_repo = fed_movies_repo
         self.sessions_repo = sessions_repo
@@ -54,13 +63,19 @@ class ScrapingEngine:
         return str(img_path)
 
     def run(self, date: dt.date):
+        """
+        Запускает скрапинг сеансов по выбранным кинотеатрам и сохраняет найденные сеансы в БД
+
+        :param date:
+        :return:
+        """
         raw_sessions = {}
         for theater in self.theaters:
-            scraper = theater.scraper()
+            scraper = scraper_factory(theater)
             scraper.run(date)
             raw_sessions[theater.id] = scraper.raw_sessions
 
-        sessions = []
+        movie_sessions = []
         for theater_id, theater_raw_sessions in raw_sessions.items():
             for raw_session in theater_raw_sessions:
                 movie = self.fed_movies_repo.search_movie(title=raw_session.movie.filmname,
@@ -75,13 +90,13 @@ class ScrapingEngine:
                     movie.posterPath = poster_path
                     self.fed_movies_repo.add_movies([movie, ])
 
-                session = Session(
+                session = MovieSession(
                     theater_id=theater_id,
                     movie_id=movie.id,
                     hall=raw_session.hall,
                     datetime=raw_session.datetime,
                     link=raw_session.link
                 )
-                sessions.append(session)
+                movie_sessions.append(session)
 
-        self.sessions_repo.add_sessions(sessions)
+        self.sessions_repo.add_movie_sessions(movie_sessions)

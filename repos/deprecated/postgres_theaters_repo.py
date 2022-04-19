@@ -4,7 +4,7 @@ from typing import Optional, List
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
-from models import Theater
+from scrapers.models import Theater
 
 
 class PostgresTheatersRepo:

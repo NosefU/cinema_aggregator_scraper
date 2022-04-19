@@ -4,7 +4,7 @@ from typing import Optional
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
-from models import FedMovie
+from scrapers.models import FedMovie
 from repos.abstract_fed_movies_repo import AbstractFedMoviesRepo
 
 

@@ -3,7 +3,7 @@ import datetime as dt
 import requests
 from bs4 import BeautifulSoup
 
-from models import ScrapedMovie, ScrapedSession
+from scrapers.models import ScrapedMovie, ScrapedSession
 from scrapers.abstract_scraper import AbstractScraper
 from scrapers.exceptions import BaseScraperException
 from settings import HEADERS
