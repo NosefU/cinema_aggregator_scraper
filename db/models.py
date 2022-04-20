@@ -51,7 +51,7 @@ class Theater(Base):
     id = Column(Integer, primary_key=True, server_default=text("nextval('theater_id_seq'::regclass)"))
     name = Column(String, nullable=False)
     address = Column(String)
-    scraper_kwargs = Column(JSON)
+    scraper_config = Column(JSON)
     city = Column(String, index=True)
     scraper = Column(String, nullable=False)
 

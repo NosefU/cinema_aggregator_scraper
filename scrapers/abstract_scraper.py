@@ -12,8 +12,9 @@ class AbstractScraper(ABC):
 
     NAME = ''
 
-    def __init__(self):
+    def __init__(self, config: dict = None):
         self.raw_sessions: List[ScrapedSession] = []
+        self.config = config
 
     @abstractmethod
     def run(self, date: dt.date) -> None:
