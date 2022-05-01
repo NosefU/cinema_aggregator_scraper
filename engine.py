@@ -71,11 +71,14 @@ class ScrapingEngine:
         """
         raw_sessions = {}
         for theater in self.theaters:
+            print(f'Scraping theater {theater}')
             scraper = scraper_factory(theater)
             scraper.run(date)
             raw_sessions[theater.id] = scraper.raw_sessions
+            print(f'\tScraping finished')
 
         movie_sessions = []
+        print('Matching movies with DB')
         for theater_id, theater_raw_sessions in raw_sessions.items():
             for raw_session in theater_raw_sessions:
                 movie = self.fed_movies_repo.search_movie(title=raw_session.movie.filmname,
@@ -86,6 +89,7 @@ class ScrapingEngine:
 
                 # если постера в базе нет, то скачиваем
                 if not movie.posterPath:
+                    print(f'Downloading poster for {movie}')
                     poster_path = self._save_poster(movie.id, raw_session.movie.poster_link)
                     movie.posterPath = poster_path
                     self.fed_movies_repo.add_movies([movie, ])
@@ -100,3 +104,4 @@ class ScrapingEngine:
                 movie_sessions.append(session)
 
         self.sessions_repo.add_movie_sessions(movie_sessions)
+        print(f'Added/updated {len(movie_sessions)} session(s)')

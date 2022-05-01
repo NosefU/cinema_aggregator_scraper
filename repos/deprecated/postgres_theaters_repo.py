@@ -71,7 +71,7 @@ class PostgresTheatersRepo:
                 "city",
                 "address",
                 "scraper",
-                "scraper_kwargs"
+                scraper_config
                 )
                 VALUES
                 (

@@ -34,5 +34,5 @@ if __name__ == '__main__':
         movies.append(Fedmovie(**movie_params))
 
     print(f'Added/updated {len(movies)} movie(s):\n\t', end='')
-    print(*movies, sep='\t\n')
+    print(*movies, sep='\n\t')
     fed_movies_db.add_movies(movies)

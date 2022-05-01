@@ -55,6 +55,9 @@ class Theater(Base):
     city = Column(String, index=True)
     scraper = Column(String, nullable=False)
 
+    def __repr__(self):
+        return f'Theater({self.id=}, {self.name}, {self.city})'
+
 
 class MovieSession(Base):
     """
