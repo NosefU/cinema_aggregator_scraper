@@ -9,7 +9,7 @@ from db.models import Theater, MovieSession
 from repos.fed_movies_repo import FedMoviesRepo
 from repos.movie_sessions_repo import MovieSessionsRepo
 from scrapers import scraper_factory
-from settings import POSTERS_PATH, HEADERS
+from settings import HEADERS, MEDIA_ROOT, POSTERS_DIR
 
 
 class BaseEngineException(BaseException):
@@ -52,15 +52,15 @@ class ScrapingEngine:
 
         :param idx: id фильма
         :param img_link: ссылка на постер
-        :return: относительный путь до скачанной картинки с постером
+        :return: относительный (относительно MEDIA_ROOT) путь до скачанной картинки с постером
         """
         img_ext = img_link.split('.')[-1]
         img_response = requests.get(img_link, headers=HEADERS)
         img_data = img_response.content
-        img_path = Path(POSTERS_PATH, str(idx) + '.' + img_ext)
-        with open(img_path, 'wb') as f:
+        media_path = Path(MEDIA_ROOT, POSTERS_DIR, str(idx) + '.' + img_ext)
+        with open(media_path, 'wb') as f:
             f.write(img_data)
-        return str(img_path)
+        return str(media_path)
 
     def run(self, date: dt.date):
         """

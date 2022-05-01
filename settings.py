@@ -1,3 +1,5 @@
+import os
+
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 '
                   'Safari/537.36',
@@ -5,4 +7,5 @@ HEADERS = {
     'Accept-Encoding': 'gzip, deflate'
 }
 
-POSTERS_PATH = 'media/posters/'
+MEDIA_ROOT = 'media'
+POSTERS_DIR = 'posters'
