@@ -33,7 +33,7 @@ class SputnikScraper(AbstractScraper):
             # ссылок на конкретные сеансы нет, поэтому единственное, что мы можем -
             # получить общую ссылку на фильм на сайте кинотеатра
             link_tag = card.findNext('a', {'class': 'film__head'})
-            link = link_tag.attrs['href']
+            link = link_tag.attrs['href'] + f'?city={self.config["city_no"]}'
 
             # год выхода фильма на сайте не пишут(
             year = None
