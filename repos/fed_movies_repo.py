@@ -1,7 +1,7 @@
 import re
 from typing import Optional, List, Tuple
 
-from sqlalchemy import func
+from sqlalchemy import func, desc
 
 from db.models import Fedmovie, Session
 
@@ -65,10 +65,15 @@ class FedMoviesRepo:
         with Session() as session:
             if year:
                 year = int(year)
-                result = session.query(Fedmovie.id, Fedmovie.filmname). \
-                    filter(Fedmovie.crYearOfProduction.between(str(year - 1), str(year + 1))).all()
+                date_range = (str(year - 1), str(year + 1))
+                result = session.query(Fedmovie.id, Fedmovie.filmname)\
+                    .filter(Fedmovie.crYearOfProduction.between(*date_range))\
+                    .order_by(desc(Fedmovie.crYearOfProduction))\
+                    .all()
             else:
-                result = session.query(Fedmovie.id, Fedmovie.filmname).all()
+                result = session.query(Fedmovie.id, Fedmovie.filmname)\
+                    .order_by(desc(Fedmovie.crYearOfProduction))\
+                    .all()
 
         movies = self._find_title_matches(title, result)
         if movies is None:
