@@ -1,12 +1,13 @@
 import datetime as dt
+import time
 
-import requests
+import undetected_chromedriver as uc
 from bs4 import BeautifulSoup
+from selenium.common.exceptions import TimeoutException
 
 from scrapers.models import ScrapedMovie, ScrapedSession
 from scrapers.abstract_scraper import AbstractScraper
 from scrapers.exceptions import BaseScraperException
-from settings import HEADERS
 
 
 class RusichScraper(AbstractScraper):
@@ -19,12 +20,23 @@ class RusichScraper(AbstractScraper):
         datetime = dt.datetime.combine(date, dt.datetime.min.time())
         timestamp = int(datetime.timestamp())
 
-        payload = {'d': timestamp, }
-        response = requests.get(self.SCHEDULE_URL, params=payload, headers=HEADERS)
-        if response.status_code != 200:
-            raise BaseScraperException(f'{self.__class__.__name__}: Response status != 200', response)
+        payload = f'?d={timestamp}'
+        driver = uc.Chrome()
 
-        html_doc = BeautifulSoup(response.text, features='html.parser')
+        # обходим защиту от ботов
+        driver.set_page_load_timeout(5)
+        try:
+            driver.get(self.SCHEDULE_URL + payload)
+            time.sleep(10)
+        except TimeoutException:
+            driver.execute_script("window.stop();")
+        if 'Расписание' not in driver.title:
+            raise BaseScraperException(f'{self.__class__.__name__}: Page not loaded. Got: {driver.title}')
+        html = driver.page_source
+        driver.close()
+
+        html_doc = BeautifulSoup(html, features='html.parser')
+
         movie_cards = html_doc.find_all('article', {'class': 'movie-info-item'})
         for card in movie_cards:
             name_tag = card.findNext('a', {'class': 'movie-info-name'})
