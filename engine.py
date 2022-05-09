@@ -88,7 +88,7 @@ class ScrapingEngine:
                                               raw_session.movie)
 
                 # если постера в базе нет, то скачиваем
-                if not movie.posterPath:
+                if not movie.posterPath and raw_session.movie.poster_link:
                     print(f'Downloading poster for {movie}')
                     poster_path = self._save_poster(movie.id, raw_session.movie.poster_link)
                     movie.posterPath = poster_path
