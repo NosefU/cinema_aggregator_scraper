@@ -45,7 +45,6 @@ if __name__ == '__main__':
         next_url = response.json().get('nextPage')
         params = None
 
-
     print(f'Added/updated {len(movies)} movie(s):\n\t', end='')
     print(*movies, sep='\n\t')
     fed_movies_db.add_movies(movies)
