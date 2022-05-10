@@ -10,6 +10,13 @@ class FedMoviesRepo:
     """
     Репозиторий фильмов с данными из Реестра прокатных удостоверений фильмов Минкульта РФ
     """
+
+    def __init__(self):
+        # формируем кэш для более быстрого поиска фильмов
+        # структура кэша: {'название': Fedmovie_obj  }
+        # TODO вынести потом кэш в отдельный прокси
+        self.cache = {}
+
     @property
     def max_id(self) -> int:
         """
@@ -62,6 +69,11 @@ class FedMoviesRepo:
         :param year: Год выхода. Поиск осуществляется в промежутке ± 1 год от переданного
         :return: Найденный фильм, либо None
         """
+
+        movie = self.cache.get(title)
+        if movie:
+            return movie
+
         with Session() as session:
             if year:
                 year = int(year)
@@ -80,6 +92,7 @@ class FedMoviesRepo:
             return None
         with Session() as session:
             movie = session.get(Fedmovie, movies[0][0])
+            self.cache[title] = movie
         return movie
 
     @staticmethod
