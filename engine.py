@@ -39,7 +39,7 @@ class ScrapingEngine:
         :param idx: id фильма
         :return: относительный путь до картинки с постером или None
         """
-        img_mask = Path(POSTERS_PATH, str(idx) + '.*')
+        img_mask = Path(MEDIA_ROOT, POSTERS_DIR, str(idx) + '.*')
         images = glob.glob(str(img_mask))
         if images:
             return images[0]
