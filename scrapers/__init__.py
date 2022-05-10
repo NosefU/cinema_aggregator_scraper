@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from scrapers.cinema_star_scraper import CinemaStarScraper
+from scrapers.kinobel_scraper import KinobelScraper
 
 if TYPE_CHECKING:
     from db.models import Theater
@@ -10,7 +11,8 @@ from scrapers.sputnik_cinema_scraper import SputnikScraper
 SCRAPERS = {
     'rusich31': RusichScraper,
     'sputnik_cinema31': SputnikScraper,
-    'cinema_star': CinemaStarScraper
+    'cinema_star': CinemaStarScraper,
+    'kinobel': KinobelScraper
 }
 
 
