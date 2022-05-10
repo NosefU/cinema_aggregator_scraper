@@ -24,7 +24,6 @@ class CinemaStarScraper(AbstractScraper):
         :param date: дата, за которую открываем расписание
         :return: HTML-код страницы с расписанием
         """
-        self.config = dict(theater_path='cinema/belgorod/')
         driver = uc.Chrome()
 
         # обходим защиту от ботов
